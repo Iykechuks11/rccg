@@ -1,0 +1,79 @@
+---
+// src/components/LanguageSwitcher.astro
+import { LANGUAGES } from '../i18n/translations';
+
+const { currentLang } = Astro.props;
+---
+
+<div class="language-switcher">
+  {LANGUAGES.map(lang => (
+    <a 
+      href={lang.code === 'en' ? '/' : `/${lang.code}`}
+      class={`lang-btn ${currentLang === lang.code ? 'active' : ''}`}
+      aria-label={lang.label}
+    >
+      <span class="flag">{lang.flag}</span>
+      <span class="label">{lang.label}</span>
+    </a>
+  ))}
+</div>
+
+<style>
+  .language-switcher {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .lang-btn {
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-radius: 30px;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid rgba(255,255,255,0.2);
+    transition: all 0.3s;
+    font-size: 0.9rem;
+  }
+  
+  .lang-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+  }
+  
+  .lang-btn.active {
+    background: #d30c07;
+    border-color: #d30c07;
+  }
+  
+  .flag {
+    font-size: 1.1rem;
+  }
+  
+  @media (max-width: 768px) {
+    .lang-btn {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.8rem;
+    }
+    
+    .label {
+      display: none; /* Hide text on mobile, show only flags */
+    }
+    
+    .flag {
+      font-size: 1.2rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .lang-btn {
+      padding: 0.3rem 0.6rem;
+    }
+    
+    .flag {
+      font-size: 1rem;
+    }
+  }
+</style>

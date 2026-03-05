@@ -1,0 +1,172 @@
+---
+// src/components/MobileMenu.astro
+import Nav from './Nav.astro';
+import HamburgerButton from './HamburgerButton.astro';
+
+const { lang } = Astro.props;
+const menuId = `mobile-dropdown-${lang}`;
+---
+
+<div class="mobile-menu-container">
+  <HamburgerButton controlsId={menuId} />
+  <div class="mobile-dropdown" id={menuId}>
+    <div class="mobile-nav">
+      <Nav lang={lang} />
+    </div>
+  </div>
+</div>
+
+<script>
+  const initMobileMenus = () => {
+    document.querySelectorAll('.mobile-menu-container').forEach((menuContainer) => {
+      if (menuContainer.dataset.menuInitialized === 'true') return;
+      menuContainer.dataset.menuInitialized = 'true';
+
+      const hamburger = menuContainer.querySelector('.hamburger');
+      const dropdown = menuContainer.querySelector('.mobile-dropdown');
+
+      if (!hamburger || !dropdown) return;
+
+      const closeMenu = () => {
+        dropdown.classList.remove('open');
+        hamburger.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+      };
+
+      const openMenu = () => {
+        dropdown.classList.add('open');
+        hamburger.classList.add('open');
+        hamburger.setAttribute('aria-expanded', 'true');
+        document.body.style.overflow = 'hidden';
+      };
+
+      hamburger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (dropdown.classList.contains('open')) {
+          closeMenu();
+          return;
+        }
+        openMenu();
+      });
+
+      dropdown.querySelectorAll('.nav-link').forEach((link) => {
+        link.addEventListener('click', closeMenu);
+      });
+
+      document.addEventListener('click', (e) => {
+        if (
+          dropdown.classList.contains('open') &&
+          !menuContainer.contains(e.target)
+        ) {
+          closeMenu();
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && dropdown.classList.contains('open')) {
+          closeMenu();
+        }
+      });
+
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 900 && dropdown.classList.contains('open')) {
+          closeMenu();
+        }
+      });
+    });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMobileMenus);
+  } else {
+    initMobileMenus();
+  }
+</script>
+
+<style>
+  .mobile-menu-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+    z-index: 1001;
+  }
+
+  .mobile-dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    width: min(320px, calc(100vw - 2rem));
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+    background: linear-gradient(135deg, #26146d 0%, #04872d 100%);
+    border-radius: 12px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    padding: 1rem 0;
+    transform: translateY(-20px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    border: 1px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+  }
+
+  .mobile-dropdown.open {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .mobile-nav :global(.nav-list) {
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.5rem;
+  }
+
+  .mobile-nav :global(.nav-link) {
+    font-size: 1rem;
+    padding: 0.8rem 1.2rem;
+    display: block;
+    width: 100%;
+    text-align: left;
+    border-radius: 8px;
+    transition: background 0.3s;
+  }
+
+  .mobile-nav :global(.nav-link:hover) {
+    background: rgba(211, 12, 7, 0.2);
+  }
+
+  .mobile-nav :global(.nav-link::after) {
+    display: none;
+  }
+
+  /* Add a small arrow on top of dropdown */
+  .mobile-dropdown::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: 20px;
+    width: 16px;
+    height: 16px;
+    background: linear-gradient(135deg, #26146d 0%, #04872d 100%);
+    transform: rotate(45deg);
+    border-left: 1px solid rgba(255,255,255,0.15);
+    border-top: 1px solid rgba(255,255,255,0.15);
+  }
+
+  @media (max-width: 560px) {
+    .mobile-dropdown {
+      width: min(320px, calc(100vw - 1rem));
+      right: -0.25rem;
+    }
+  }
+
+  /* Hide on desktop */
+  @media (min-width: 901px) {
+    .mobile-menu-container {
+      display: none;
+    }
+  }
+</style>

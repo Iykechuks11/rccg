@@ -1,0 +1,397 @@
+---
+// src/components/Hero.astro
+import { translations } from '../i18n/translations';
+import slideOne from '../assets/hero-1.png';
+import slideTwo from '../assets/hero-2.webp';
+import slideThree from '../assets/hero-3.png';
+import slideFour from '../assets/hero-4.png';
+import Icon from './Icon.astro';
+
+const { lang, churchName } = Astro.props;
+const t = translations[lang];
+const heroSlides = [
+  slideOne.src,
+  slideTwo.src,
+  slideThree.src,
+  slideFour.src
+];
+---
+
+<section class="hero" data-slider-root>
+  <div class="hero-background">
+    <div class="hero-slides">
+      {heroSlides.map((slide, index) => (
+        <img
+          src={slide}
+          alt=""
+          class:list={['hero-slide', index === 0 && 'is-active']}
+          data-slide
+          loading={index === 0 ? 'eager' : 'lazy'}
+          decoding="async"
+        />
+      ))}
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="hero-dots" aria-hidden="true">
+      {heroSlides.map((_, index) => (
+        <span class:list={['hero-dot', index === 0 && 'is-active']} data-dot></span>
+      ))}
+    </div>
+  </div>
+  
+  
+  <div class="hero-content">
+    <div class="hero-text">
+      <h1 class="hero-title">
+        {t.welcomeTitle.replace('{churchName}', churchName)}
+      </h1>
+      
+      <p class="hero-subtitle">{t.welcomeSubtitle}</p>
+      
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-number" data-counter data-target="1952">0</span>
+          <span class="stat-label">{lang === 'en' ? 'Founded' : 'Основана'}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number" data-counter data-target="170" data-suffix="+">0+</span>
+          <span class="stat-label">{lang === 'en' ? 'Countries' : 'Земји'}</span>
+        </div>
+      </div>
+      
+      <div class="hero-buttons">
+        <a href="#vision" class="btn btn-primary">{t.ctaLearnMore}</a>
+        <a href="#location" class="btn btn-secondary">{t.ctaVisitUs}</a>
+        <a href="https://wa.me/38978915445" class="btn btn-whatsapp" target="_blank">
+          <Icon name="message" size={18} />
+          {t.ctaWhatsApp}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const initHeroSlider = () => {
+    const slider = document.querySelector('[data-slider-root]');
+    if (!slider || slider.dataset.sliderInitialized === 'true') return;
+    slider.dataset.sliderInitialized = 'true';
+
+    const slides = Array.from(slider.querySelectorAll('[data-slide]'));
+    const dots = Array.from(slider.querySelectorAll('[data-dot]'));
+    if (slides.length < 2) return;
+
+    let currentIndex = 0;
+    const activate = (index) => {
+      slides.forEach((slide, i) => slide.classList.toggle('is-active', i === index));
+      dots.forEach((dot, i) => dot.classList.toggle('is-active', i === index));
+      currentIndex = index;
+    };
+
+    window.setInterval(() => {
+      const nextIndex = (currentIndex + 1) % slides.length;
+      activate(nextIndex);
+    }, 5000);
+  };
+
+  const initHeroCounters = () => {
+    const hero = document.querySelector('[data-slider-root]');
+    if (!hero || hero.dataset.counterInitialized === 'true') return;
+    hero.dataset.counterInitialized = 'true';
+
+    const counters = Array.from(hero.querySelectorAll('[data-counter]'));
+    if (!counters.length) return;
+
+    const runCounters = () => {
+      counters.forEach((counter) => {
+        const target = Number(counter.getAttribute('data-target') ?? '0');
+        const suffix = counter.getAttribute('data-suffix') ?? '';
+        const duration = 3200;
+        const startTime = performance.now();
+
+        const tick = (now) => {
+          const progress = Math.min((now - startTime) / duration, 1);
+          const value = Math.floor(progress * target);
+          counter.textContent = `${value}${suffix}`;
+          if (progress < 1) {
+            requestAnimationFrame(tick);
+          } else {
+            counter.textContent = `${target}${suffix}`;
+          }
+        };
+
+        requestAnimationFrame(tick);
+      });
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            runCounters();
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.45 }
+    );
+
+    observer.observe(hero);
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      initHeroSlider();
+      initHeroCounters();
+    });
+  } else {
+    initHeroSlider();
+    initHeroCounters();
+  }
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 4rem 2rem;
+  }
+
+  .hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+  }
+
+  .hero-slides {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+  .hero-slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0;
+    transform: scale(1.04);
+    transition: opacity 0.9s ease, transform 5s ease;
+  }
+
+  .hero-slide.is-active {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+
+  .hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(38,20,109,0.65) 0%, rgba(4,135,45,0.62) 100%);
+    z-index: 2;
+  }
+
+  .hero-dots {
+    position: absolute;
+    left: 50%;
+    bottom: 1.2rem;
+    transform: translateX(-50%);
+    z-index: 3;
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .hero-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.45);
+    transition: transform 0.25s ease, background-color 0.25s ease;
+  }
+
+  .hero-dot.is-active {
+    background: rgba(255,255,255,0.95);
+    transform: scale(1.15);
+  }
+
+  .hero-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 3;
+    color: white;
+    text-align: center;
+  }
+
+  .hero-text {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .hero-title {
+    font-size: 3.5rem;
+    margin-bottom: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    line-height: 1.2;
+    max-width: 16ch;
+    margin-left: auto;
+    margin-right: auto;
+    text-wrap: balance;
+  }
+
+  .hero-subtitle {
+    font-size: 1.3rem;
+    margin-bottom: 2.5rem;
+    opacity: 0.95;
+    line-height: 1.6;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 3rem;
+    justify-content: center;
+    align-items: center;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 3rem;
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 0.3rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  }
+
+  .stat-label {
+    font-size: 1rem;
+    opacity: 0.9;
+  }
+
+  .hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 1rem 2rem;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  }
+
+  .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  }
+
+  .btn-primary {
+    background: white;
+    color: #26146d;
+  }
+
+  .btn-primary:hover {
+    background: #f0f0f0;
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: white;
+    border: 2px solid white;
+  }
+
+  .btn-secondary:hover {
+    background: white;
+    color: #26146d;
+  }
+
+  .btn-whatsapp {
+    background: #25d366;
+    color: white;
+  }
+
+  .btn-whatsapp:hover {
+    background: #128C7E;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .hero {
+      min-height: 80vh;
+      padding: 3rem 1rem;
+    }
+
+    .hero-title {
+      font-size: clamp(2rem, 7vw, 2.5rem);
+      line-height: 1.18;
+      margin-bottom: 1rem;
+      max-width: 14ch;
+    }
+
+    .hero-subtitle {
+      font-size: 1.2rem;
+    }
+
+    .hero-stats {
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+
+  }
+
+  @media (max-width: 480px) {
+    .hero-title {
+      font-size: clamp(1.65rem, 9vw, 2rem);
+      line-height: 1.15;
+      max-width: 12ch;
+    }
+
+    .hero-stats {
+      gap: 1.5rem;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+    }
+
+    .hero-buttons {
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>

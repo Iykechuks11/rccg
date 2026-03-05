@@ -1,0 +1,222 @@
+---
+// src/components/WorshipGallery.astro
+import { translations } from '../i18n/translations';
+import Icon from './Icon.astro';
+import rccg1 from '../assets/rccg1.jpg';
+import rccg2 from '../assets/rccg2.jpg';
+import rccg7 from '../assets/rccg7.jpg';
+import rccg10 from '../assets/rccg10.jpg';
+import rccg9 from '../assets/rccg9.jpg';
+
+const { lang } = Astro.props;
+const t = translations[lang];
+
+const galleryImages = [
+  {
+    url: rccg1.src,
+    caption: { en: "Worship Session", mk: "Сесија за богослужба" },
+    category: "worship"
+  },
+  {
+    url: rccg2.src,
+    caption: { en: "Bible Study", mk: "Библиска студија" },
+    category: "study"
+  },
+  {
+    url: rccg7.src,
+    caption: { en: "Children's Ministry", mk: "Детско министерство" },
+    category: "worship"
+  },
+  {
+    url: rccg10.src,
+    caption: { en: "Church Fellowship", mk: "Црковно заедништво" },
+    category: "fellowship"
+  },
+  {
+    url: rccg9.src,
+    caption: { en: "Bible Study", mk: "Библиска студија" },
+    category: "study"
+  },
+  {
+    url: rccg10.src,
+    caption: { en: "Church Fellowship", mk: "Црковно заедништво" },
+    category: "fellowship"
+  }
+];
+---
+
+<section class="gallery-section" id="gallery">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-icon"><Icon name="camera" size={44} /></span>
+      <h2>{t.galleryTitle}</h2>
+      <p class="section-subtitle">{t.gallerySubtitle}</p>
+    </div>
+    
+    <div class="gallery-grid">
+      {galleryImages.map((image) => (
+        <div class="gallery-item">
+          <div class="image-wrapper">
+            <img 
+              src={image.url} 
+              alt={image.caption[lang]}
+              loading="lazy"
+            />
+            <div class="image-overlay">
+              <div class="overlay-content">
+                <span class="category-tag">{image.category}</span>
+                <p class="image-caption">{image.caption[lang]}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .gallery-section {
+    padding: 5rem 0;
+    background: white;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+  
+  .section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  
+  .section-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 1rem;
+  }
+  
+  .section-header h2 {
+    font-size: 2.5rem;
+    color: #26146d;
+    margin: 0 0 1rem;
+    position: relative;
+    display: inline-block;
+  }
+  
+  .section-header h2::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, #04872d, #d30c07);
+  }
+  
+  .section-subtitle {
+    font-size: 1.2rem;
+    color: #666;
+    max-width: 600px;
+    margin: 2rem auto 0;
+  }
+  
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+    margin: 3rem 0;
+  }
+  
+  .gallery-item {
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+    aspect-ratio: 4/3;
+  }
+  
+  .gallery-item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(38,20,109,0.2);
+  }
+  
+  .image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  .image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s;
+  }
+  
+  .gallery-item:hover img {
+    transform: scale(1.1);
+  }
+  
+  .image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to top, rgba(38,20,109,0.95), rgba(4,135,45,0.7));
+    display: flex;
+    align-items: flex-end;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  
+  .gallery-item:hover .image-overlay {
+    opacity: 1;
+  }
+  
+  .overlay-content {
+    padding: 1.5rem;
+    color: white;
+    transform: translateY(20px);
+    transition: transform 0.3s;
+    width: 100%;
+  }
+  
+  .gallery-item:hover .overlay-content {
+    transform: translateY(0);
+  }
+  
+  .category-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    padding: 0.3rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+    text-transform: capitalize;
+    backdrop-filter: blur(5px);
+  }
+  
+  .image-caption {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  }
+  
+  @media (max-width: 768px) {
+    .gallery-grid {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+    
+    .section-header h2 {
+      font-size: 2rem;
+    }
+  }
+</style>

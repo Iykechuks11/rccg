@@ -1,0 +1,162 @@
+---
+const { lang = 'en' } = Astro.props;
+const initialVerses = {
+  en: { text: 'Pray without ceasing.', ref: '1 Thessalonians 5:17' },
+  mk: { text: 'Молете се без престан.', ref: '1 Солуњаните 5:17' }
+};
+
+const initialVerse = lang === 'mk' ? initialVerses.mk : initialVerses.en;
+const initialPalette = ['#26146d', '#04872d'];
+const escapeXml = (value) =>
+  value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&apos;');
+
+const wrapText = (text, maxChars = 26) => {
+  const words = text.split(' ');
+  const lines = [];
+  let current = '';
+
+  words.forEach((word) => {
+    const candidate = current ? `${current} ${word}` : word;
+    if (candidate.length <= maxChars) {
+      current = candidate;
+    } else {
+      if (current) lines.push(current);
+      current = word;
+    }
+  });
+
+  if (current) lines.push(current);
+  return lines;
+};
+
+const svgForVerse = (verse, colors) => {
+  const lines = wrapText(verse.text);
+  const textY = 170 - (lines.length - 1) * 18;
+  const tspans = lines
+    .map((line, index) =>
+      `<tspan x="50%" dy="${index === 0 ? 0 : 36}">${escapeXml(line)}</tspan>`
+    )
+    .join('');
+
+  return `
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="${colors[0]}"/>
+      <stop offset="100%" stop-color="${colors[1]}"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="560" fill="url(#bg)"/>
+  <circle cx="760" cy="120" r="140" fill="rgba(255,255,255,0.09)"/>
+  <circle cx="120" cy="470" r="180" fill="rgba(255,255,255,0.07)"/>
+  <rect x="90" y="90" width="720" height="380" rx="24" fill="rgba(0,0,0,0.28)" stroke="rgba(255,255,255,0.3)"/>
+  <text x="50%" y="${textY}" fill="#ffffff" text-anchor="middle" font-family="Georgia, serif" font-size="42" font-weight="600">
+    ${tspans}
+  </text>
+  <text x="50%" y="410" fill="#f8f9fa" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" font-weight="500">
+    ${escapeXml(verse.ref)}
+  </text>
+</svg>`;
+};
+
+const initialSrc = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
+  svgForVerse(initialVerse, initialPalette)
+)}`;
+---
+
+<div class="scripture-image" data-scripture-image data-lang={lang}>
+  <img
+    class="scripture-image-frame"
+    alt={lang === 'en' ? 'Scripture verse image' : 'Слика со библиски стих'}
+    src={initialSrc}
+    loading="eager"
+    decoding="async"
+  />
+</div>
+
+<script>
+  const VERSES = {
+    en: [
+      { text: 'Pray without ceasing.', ref: '1 Thessalonians 5:17' },
+      { text: 'The Lord is my shepherd; I shall not want.', ref: 'Psalm 23:1' },
+      { text: 'I can do all things through Christ who strengthens me.', ref: 'Philippians 4:13' },
+      { text: 'Trust in the Lord with all your heart.', ref: 'Proverbs 3:5' },
+      { text: 'With God all things are possible.', ref: 'Matthew 19:26' },
+      { text: 'Your word is a lamp to my feet and a light to my path.', ref: 'Psalm 119:105' }
+    ],
+    mk: [
+      { text: 'Молете се без престан.', ref: '1 Солуњаните 5:17' },
+      { text: 'Господ е мој пастир; ништо не ми недостига.', ref: 'Псалм 23:1' },
+      { text: 'Сè можам преку Христос Кој ме крепи.', ref: 'Филипјаните 4:13' },
+      { text: 'Надевај се на Господ од сето срце.', ref: 'Изреки 3:5' },
+      { text: 'Кај Бога сè е можно.', ref: 'Матеј 19:26' },
+      { text: 'Твоето слово е светилка на моите нозе.', ref: 'Псалм 119:105' }
+    ]
+  };
+
+  const PALETTES = [
+    ['#26146d', '#04872d'],
+    ['#0f4c81', '#1c8b5d'],
+    ['#7a1f1f', '#d30c07'],
+    ['#1f3f6b', '#2f9e44']
+  ];
+
+  const pickRandom = (max, current) => {
+    if (max <= 1) return 0;
+    let next = Math.floor(Math.random() * max);
+    while (next === current) next = Math.floor(Math.random() * max);
+    return next;
+  };
+
+  const initScriptureImages = () => {
+    document.querySelectorAll('[data-scripture-image]').forEach((container) => {
+      if (container.dataset.initialized === 'true') return;
+      container.dataset.initialized = 'true';
+
+      const image = container.querySelector('.scripture-image-frame');
+      if (!image) return;
+
+      const lang = container.dataset.lang === 'mk' ? 'mk' : 'en';
+      const verses = VERSES[lang];
+      let currentIndex = -1;
+
+      const renderNext = () => {
+        currentIndex = pickRandom(verses.length, currentIndex);
+        const palette = PALETTES[Math.floor(Math.random() * PALETTES.length)];
+        const svg = svgForVerse(verses[currentIndex], palette);
+        image.src = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+      };
+
+      renderNext();
+      window.setInterval(renderNext, 60000);
+    });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScriptureImages);
+  } else {
+    initScriptureImages();
+  }
+</script>
+
+<style>
+  .scripture-image {
+    width: 100%;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  }
+
+  .scripture-image-frame {
+    width: 100%;
+    height: auto;
+    display: block;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+  }
+</style>

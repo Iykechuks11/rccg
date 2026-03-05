@@ -1,0 +1,225 @@
+---
+// src/components/Header.astro
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import Nav from './Nav.astro';
+import MobileMenu from './MobileMenu.astro';
+import Icon from './Icon.astro';
+import { translations } from '../i18n/translations';
+import { Image } from 'astro:assets';
+import logo from '../assets/rccg-for-web.png'
+
+const { lang } = Astro.props;
+const t = translations[lang];
+const churchNameFirstLine = 'RCCG';
+const churchNameSecondLine = lang === 'en'
+  ? 'Love Assembly'
+  : t.churchName.replace(/^RCCG\s*/, '');
+---
+
+<header class="header">
+  <div class="header-container">
+    <a href={lang === 'en' ? '/' : `/${lang}`} class="logo-link">
+      <Image 
+        src={logo} 
+        alt="RCCG Love Assembly Logo" 
+        class="logo-image"
+        width={120}
+        height={60}
+        format="png"
+      />
+      <div class="logo-text">
+        <span class="church-name">
+          <span class="church-name-line church-name-line--top">{churchNameFirstLine}</span>
+          <span class="church-name-line church-name-line--bottom">{churchNameSecondLine}</span>
+        </span>
+        <span class="church-location"><Icon name="map-pin" size={12} /> Skopje</span>
+      </div>
+    </a>
+
+    <div class="desktop-nav">
+      <Nav lang={lang} />
+    </div>
+
+    <div class="header-actions">
+      <div class="lang-switcher">
+        <LanguageSwitcher currentLang={lang} />
+      </div>
+      <div class="menu-trigger">
+        <MobileMenu lang={lang} />
+      </div>
+    </div>
+  </div>
+</header>
+
+<style>
+  .header {
+    background: linear-gradient(135deg, #26146d 0%, #04872d 100%);
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 20px rgba(38,20,109,0.3);
+  }
+  
+  .header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0.8rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: nowrap;
+    position: relative;
+    gap: 1rem;
+  }
+
+  .logo-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-decoration: none;
+    color: white;
+    min-width: 0;
+  }
+  
+  .logo-image {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+  }
+  
+  .logo-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  
+  .church-name {
+    display: flex;
+    flex-direction: column;
+    font-size: 1.1rem;
+    font-weight: bold;
+    line-height: 1.1;
+    color: white;
+    overflow: hidden;
+  }
+
+  .church-name-line {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .church-name-line--top {
+    letter-spacing: 0.02em;
+  }
+
+  .church-name-line--bottom {
+    font-size: 0.95em;
+    margin-top: 0.1rem;
+  }
+  
+  .church-location {
+    font-size: 0.75rem;
+    opacity: 0.9;
+    color: rgba(255,255,255,0.9);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  
+  .church-location :global(svg) {
+    opacity: 0.85;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+    flex-wrap: nowrap;
+  }
+
+  .desktop-nav {
+    display: flex;
+    align-items: center;
+  }
+
+  .lang-switcher {
+    display: flex;
+    align-items: center;
+  }
+
+  .menu-trigger {
+    display: flex;
+    align-items: center;
+  }
+
+  @media (max-width: 900px) {
+    .header-container {
+      padding: 0.5rem 1rem;
+    }
+
+    .desktop-nav {
+      display: none;
+    }
+
+    .logo-link {
+      gap: 0.5rem;
+    }
+    
+    .logo-image {
+      height: 40px;
+    }
+    
+    .church-name {
+      font-size: 0.95rem;
+    }
+    
+    .church-location {
+      font-size: 0.65rem;
+    }
+    
+    .header-actions {
+      gap: 0.35rem;
+    }
+
+    .lang-switcher :global(.language-switcher) {
+      gap: 0.3rem;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .header-container {
+      gap: 0.4rem;
+      padding: 0.45rem 0.75rem;
+    }
+
+    .logo-link {
+      gap: 0.3rem;
+    }
+    
+    .logo-image {
+      height: 35px;
+    }
+    
+    .church-name {
+      font-size: 0.85rem;
+      max-width: 130px;
+    }
+    
+    .logo-text {
+      max-width: 130px;
+    }
+
+    .church-location {
+      display: none;
+    }
+
+    .header-actions {
+      gap: 0.25rem;
+    }
+  }
+</style>

@@ -1,0 +1,72 @@
+---
+// src/components/Nav.astro
+import { translations } from '../i18n/translations';
+
+const { lang, class: className = '' } = Astro.props;
+const t = translations[lang];
+const homePath = lang === 'en' ? '/' : `/${lang}`;
+---
+
+<nav class:list={['nav', className]}>
+  <ul class="nav-list">
+    <li class="nav-item">
+      <a href={`${homePath}#vision`} class="nav-link">{t.navVision}</a>
+    </li>
+    <li class="nav-item">
+      <a href={lang === 'en' ? '/about' : `/${lang}/about`} class="nav-link">{t.navAbout}</a>
+    </li>
+    <li class="nav-item">
+      <a href={`${homePath}#services`} class="nav-link">{t.navServices}</a>
+    </li>
+    <li class="nav-item">
+      <a href={`${homePath}#gallery`} class="nav-link">{t.navGallery}</a>
+    </li>
+    <li class="nav-item">
+      <a href={`${homePath}#location`} class="nav-link">{t.navContact}</a>
+    </li>
+    <li class="nav-item">
+      <a href={lang === 'en' ? '/blog' : `/${lang}/blog`} class="nav-link">{t.navBlog}</a>
+    </li>
+  </ul>
+</nav>
+
+<style>
+  .nav-list {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav-link {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s;
+    position: relative;
+    font-size: 0.95rem;
+    padding: 0.3rem 0;
+    white-space: nowrap;
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #d30c07;
+    transition: width 0.3s;
+  }
+
+  .nav-link:hover::after {
+    width: 100%;
+  }
+
+  .nav-link:hover {
+    color: #ffffff;
+    text-shadow: 0 0 8px rgba(255,255,255,0.5);
+  }
+</style>

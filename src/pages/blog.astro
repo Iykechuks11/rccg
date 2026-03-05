@@ -1,0 +1,41 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { translations } from '../i18n/translations';
+
+const lang = 'en';
+const t = translations[lang];
+---
+
+<Layout title="News/Blog - RCCG Love Assembly Macedonia" lang={lang}>
+  <section class="blog-hero">
+    <div class="container">
+      <h1>{t.navBlog}</h1>
+      <p>Latest events, sermons, and updates from RCCG Love Assembly.</p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .blog-hero {
+    padding: 5rem 0;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+    text-align: center;
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  h1 {
+    color: #26146d;
+    margin-bottom: 1rem;
+    font-size: 2.5rem;
+  }
+
+  p {
+    color: #555;
+    font-size: 1.1rem;
+  }
+</style>
